@@ -1,0 +1,4 @@
+recurring_jobs:
+  CheckEventJob:
+    cron: "*/1 * * * *"  # This runs every minute
+    class: "CheckEventJob"

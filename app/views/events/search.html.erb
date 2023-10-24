@@ -1,0 +1,9 @@
+<h1>Search Events by Date</h1>
+<%= form_tag events_search_path, method: :get do %>
+  <div class="field">
+    <%= label_tag 'date', 'Enter a date:' %>
+    <%= text_field_tag 'date' %>
+  </div>
+  <%= submit_tag 'Search' %>
+<% end %>
+<%= link_to 'Back to Calendar', events_path %>

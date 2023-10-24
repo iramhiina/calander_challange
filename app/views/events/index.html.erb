@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset='utf-8' />
+  <link href='https://cdn.jsdelivr.net/npm/fullcalendar@5.10/main.css' rel='stylesheet' />
+  <script src='https://code.jquery.com/jquery-3.6.0.min.js'></script>
+  <script src='https://cdn.jsdelivr.net/npm/fullcalendar@5.10/main.js'></script>
+  <link href='https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css' rel='stylesheet'>
+  <script src='https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js'></script>
+</head>
+<body>
+  <h1>Event Calendar</h1>
+  <div id='calendar'></div>
+
+  <!-- Bootstrap Modal for Event Editing -->
+  <div class="modal fade" id="editEventModal" tabindex="-1" role="dialog" aria-labelledby="editEventModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="editEventModalLabel">Edit Event</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <!-- Create a form for editing event details -->
+          <form id="editEventForm">
+            <input type="text" id="editEventTitle" name="title" placeholder="Event Title">
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-primary" id="updateEventButton">Update Event</button>
+          <button type="button" class="btn btn-primary" id="deleteEventButton">Delete</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      var calendarEl = document.getElementById('calendar');
+      var events = <%= @events.to_json.html_safe %>;
+
+      var calendar = new FullCalendar.Calendar(calendarEl, {
+        initialView: 'dayGridMonth',
+        events: events,
+        headerToolbar: {
+          left: 'prev,next today',
+          center: 'title',
+          right: 'dayGridMonth,dayGridWeek,dayGridDay'
+        },
+        eventClick: function(info) {
+          // Display event details in the modal
+          var id = info.event.id
+          var title = info.event.title;
+          $('#editEventForm').attr('data-event-id', id); 
+
+          var eventDetails = "Title: " + title ;
+          $('#eventDetailsBody').html(eventDetails);
+          $('#editEventModal').modal('show');
+        },
+      });
+
+      $('#updateEventButton').click(function() {
+        var eventId = $('#editEventForm').data('event-id');
+        var updatedTitle = $('#editEventTitle').val();
+
+
+        $.ajax({
+          type: 'put', 
+          url: 'events/' + eventId,
+ 
+          data: {
+            event: {
+              title: updatedTitle
+            }
+          },
+          success: function(response) {
+            $('#editEventModal').modal('hide');
+            calendar.refetchEvents();
+          },
+          error: function(err) {
+          }
+        });
+      });
+
+
+      // Timer interval for refreshing the calendar (e.g., every 5 minutes)
+const refreshInterval = 300; // 5 minutes in milliseconds
+
+// Function to refresh the calendar
+function refreshCalendar() {
+  debugger
+  calendar.refetchEvents(); // Refresh the events on the calendar
+}
+
+// Set an interval to refresh the calendar
+setInterval(refreshCalendar, refreshInterval);
+
+      $('#deleteEventButton').click(function() {
+        var eventId = $('#editEventForm').data('event-id');
+
+        $.ajax({
+        type: 'DELETE',
+        url: '/events/'+eventId, 
+        success: function(response) { 
+          $('#editEventModal').modal('hide');
+          calendar.refetchEvents();
+        },
+        error: function(err) {
+  $('#editEventModal').modal('hide');
+            calendar.refetchEvents();     
+    }
+      });
+      });
+      calendar.render();
+    });
+  </script>
+</body>
+</html>

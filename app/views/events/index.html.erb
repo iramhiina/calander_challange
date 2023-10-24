@@ -70,7 +70,7 @@
         $.ajax({
           type: 'put', 
           url: 'events/' + eventId,
- 
+          
           data: {
             event: {
               title: updatedTitle
@@ -98,24 +98,27 @@ function refreshCalendar() {
 // Set an interval to refresh the calendar
 setInterval(refreshCalendar, refreshInterval);
 
-      $('#deleteEventButton').click(function() {
-        var eventId = $('#editEventForm').data('event-id');
+$('#deleteEventButton').click(function() {
+  var eventId = $('#editEventForm').data('event-id');
 
-        $.ajax({
-        type: 'DELETE',
-        url: '/events/'+eventId, 
-        success: function(response) { 
-          $('#editEventModal').modal('hide');
-          calendar.refetchEvents();
-        },
-        error: function(err) {
-  $('#editEventModal').modal('hide');
-            calendar.refetchEvents();     
-    }
-      });
-      });
-      calendar.render();
+  $.ajax({
+    type: 'DELETE',
+    url: '/events/'+eventId, 
+    success: function(response) { 
+      $('#editEventModal').modal('hide');
+      $('#calendar').fullCalendar( 'refetchEvents' );        },
+      error: function(err) {
+        $('#editEventModal').modal('hide');
+        calendar.getEvents();
+        calendar.refetchEvents();     
+      }
     });
-  </script>
+});
+calendar.render();
+});
+
+
+
+</script>
 </body>
 </html>

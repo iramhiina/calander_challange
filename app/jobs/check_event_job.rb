@@ -2,7 +2,6 @@ class CheckEventJob
   include Sidekiq::Worker
 
   def perform
-  	debugger
     Event.all.each do |event|
       if event.date <= Date.Today && event.notification == true
         # Generate a notification for the event
@@ -14,8 +13,6 @@ class CheckEventJob
   private
 
   def send_notification(title)
-     javascript_code = "alert('It\'s time for your event: #{title}');"
-
-    ActionView::Base.full_sanitizer.sanitize(javascript_code)  
-   end
+    notification_message = "It's time for your event: #{title}"
+  end
 end
